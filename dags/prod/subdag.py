@@ -24,10 +24,7 @@ external_task_id_for_triggered_dag = 'table_name_1_query_the_table'
 
 class CustomExternalTaskSensor(ExternalTaskSensor):
     '''
-    CustomExternalTaskSensor
-    Added:
-     - invoking XCOM class
-     - setting execution_date_fn by value from triggered_dag.table_name_1_query_the_table
+    CustomExternalTaskSensor child from ExternalTaskSensor
     '''
     @apply_defaults
     def __init__(self,
@@ -50,6 +47,13 @@ class CustomExternalTaskSensor(ExternalTaskSensor):
 
     @provide_session
     def poke(self, context, session=None):
+        '''
+        Custom code
+            here we're getting execution_date from triggered dag
+            to realize this we use Xcom class, which reads data from Airflow database
+            then we define execution_date_fn with this value
+            Pay attention: to receive last value we set include_prior_dates as True
+        '''
         exec_dt = dt.datetime.now()
         exec_date = XCom.get_one(
             execution_date=exec_dt.replace(tzinfo=timezone.utc),
@@ -62,8 +66,10 @@ class CustomExternalTaskSensor(ExternalTaskSensor):
             self.execution_date_fn = lambda d1: dt.datetime.fromisoformat(exec_date)
             print("execution_date_fn: {}".format(self.execution_date_fn))
         # ****************************************
-        # ****************************************
         # super(CustomExternalTaskSensor, self).poke(context=context, session=session)
+        '''
+        Original code
+        '''
         if self.execution_delta:
             dttm = context['execution_date'] - self.execution_delta
         elif self.execution_date_fn:
@@ -121,10 +127,14 @@ class CustomExternalTaskSensor(ExternalTaskSensor):
         # ****************************************
 
 
-def pull_fn(**context):
-    ti = context['ti']
-    msg = ti.xcom_pull(key='run_id')
-    print("received message: '%s'" % msg)
+def pull_fn(*args, **context):
+    xcom_value = XCom.get_one(
+        execution_date=dt.datetime.now().replace(tzinfo=timezone.utc),
+        include_prior_dates=True,
+        key='run_id',
+        task_id=args[1],
+        dag_id=args[0])
+    print("received message: '%s'" % xcom_value)
     print("**  Printing full context  **")
     for k, v in context.items():
         print("key:{}. val:{}".format(k, v))
@@ -140,17 +150,23 @@ def sub_dag(parent_dag, child_dag, args, schedule):
                                                task_id='sensor_trig_dag',
                                                dag=dag)
 
-    print_result = PythonOperator(task_id='print_result', python_callable=pull_fn, dag=dag)
+    print_result = PythonOperator(
+        task_id='print_result',
+        python_callable=pull_fn,
+        op_args=['dag_1_prod', 'table_name_1_query_the_table'],
+        dag=dag)
 
-    remove_run_file = BashOperator(task_id='remove_run_file',
-                                   bash_command='rm {{ params.file_path }}',
-                                   params={'file_path': run_file},
-                                   dag=dag)
+    remove_run_file = BashOperator(
+        task_id='remove_run_file',
+        bash_command='rm {{ params.file_path }}',
+        params={'file_path': run_file},
+        dag=dag)
 
-    create_finished_tm = BashOperator(task_id='create_finished_tm',
-                                      bash_command='touch {{ params.tmp }}finished_{{ ts_nodash }}',
-                                      params={'tmp': tmp_folder},
-                                      dag=dag)
+    create_finished_tm = BashOperator(
+        task_id='create_finished_tm',
+        bash_command='touch {{ params.tmp }}finished_{{ ts_nodash }}',
+        params={'tmp': tmp_folder},
+        dag=dag)
 
     sensor_trig_dag >> print_result >> remove_run_file >> create_finished_tm
 

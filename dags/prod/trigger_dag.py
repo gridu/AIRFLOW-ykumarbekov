@@ -2,7 +2,6 @@ from datetime import datetime
 from airflow import DAG
 from airflow.contrib.sensors.file_sensor import FileSensor
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
-from airflow.operators.bash_operator import BashOperator
 from airflow.models import Variable
 from airflow.operators.subdag_operator import SubDagOperator
 from prod.subdag import sub_dag
@@ -20,13 +19,14 @@ args = {
             'retries': 1,
             'start_date': datetime(2019, 12, 26)}
 
-dag_trigger = DAG(dag_id=parent_dag_name, default_args=args, schedule_interval='04 10 * * *')
+dag_trigger = DAG(dag_id=parent_dag_name, default_args=args, schedule_interval='23 11 * * *')
 
 wait_run_file = FileSensor(task_id='wait_run_file', poke_interval=30, filepath=run_file, dag=dag_trigger)
 
-trigger_dag = TriggerDagRunOperator(task_id='trigger_DAG',
-                                    trigger_dag_id=dag_triggered_name,
-                                    dag=dag_trigger)
+trigger_dag = TriggerDagRunOperator(
+    task_id='trigger_DAG',
+    trigger_dag_id=dag_triggered_name,
+    dag=dag_trigger)
 
 process_result_sub_dag = SubDagOperator(
     subdag=sub_dag(
@@ -34,10 +34,5 @@ process_result_sub_dag = SubDagOperator(
         child_dag_name, args=args, schedule=dag_trigger.schedule_interval),
     task_id=child_dag_name,
     dag=dag_trigger)
-
-# remove_run_file = BashOperator(task_id='remove_run_file',
-#                               bash_command='rm {{ params.file_path }}',
-#                               params={'file_path': run_file},
-#                               dag=dag_trigger)
 
 wait_run_file >> trigger_dag >> process_result_sub_dag
