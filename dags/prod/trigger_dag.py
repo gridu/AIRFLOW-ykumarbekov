@@ -7,8 +7,7 @@ from airflow.operators.subdag_operator import SubDagOperator
 from prod.subdag import sub_dag
 
 parent_dag_name = 'dag_trigger'
-# dag_triggered_name = 'xcom_test_push_dag'
-dag_triggered_name = 'dag_1_prod'
+dag_triggered_name = 'db_job_dag'
 child_dag_name = 'process_results_SubDAG'
 
 run_file = Variable.get('run_file') or '/tmp/airflow_project/run'
@@ -19,7 +18,7 @@ args = {
             'retries': 1,
             'start_date': datetime(2019, 12, 26)}
 
-dag_trigger = DAG(dag_id=parent_dag_name, default_args=args, schedule_interval='23 11 * * *')
+dag_trigger = DAG(dag_id=parent_dag_name, default_args=args, schedule_interval='35 16 * * *')
 
 wait_run_file = FileSensor(task_id='wait_run_file', poke_interval=30, filepath=run_file, dag=dag_trigger)
 

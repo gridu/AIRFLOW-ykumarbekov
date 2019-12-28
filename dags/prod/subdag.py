@@ -18,8 +18,8 @@ tmp_folder = Variable.get('tmp_folder') or '/tmp/'
 # triggered_dag = 'xcom_test_push_dag'
 # external_task_id_for_triggered_dag = 'end_push_task'
 
-triggered_dag = 'dag_1_prod'
-external_task_id_for_triggered_dag = 'table_name_1_query_the_table'
+triggered_dag = 'db_job_dag'
+external_task_id_for_triggered_dag = 'dag_table_query_the_table'
 
 
 class CustomExternalTaskSensor(ExternalTaskSensor):
@@ -51,7 +51,7 @@ class CustomExternalTaskSensor(ExternalTaskSensor):
         Custom code
             here we're getting execution_date from triggered dag
             to realize this we use Xcom class, which reads data from Airflow database
-            then we define execution_date_fn with this value
+            then we populate execution_date_fn with this value
             Pay attention: to receive last value we set include_prior_dates as True
         '''
         exec_dt = dt.datetime.now()
@@ -153,7 +153,7 @@ def sub_dag(parent_dag, child_dag, args, schedule):
     print_result = PythonOperator(
         task_id='print_result',
         python_callable=pull_fn,
-        op_args=['dag_1_prod', 'table_name_1_query_the_table'],
+        op_args=[triggered_dag, external_task_id_for_triggered_dag],
         dag=dag)
 
     remove_run_file = BashOperator(
