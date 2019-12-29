@@ -7,9 +7,13 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.utils.trigger_rule import TriggerRule
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.operators.postgres_operator import PostgresOperator
+from airflow.operators.postgres_custom import PostgresSQLCountRows
 
 curr_dir = 'prod'
 db = 'project_db'
+'''
+conn_id = postgres (default postgres connection)
+'''
 
 config = {'db_job_dag': {'schedule_interval': None, "start_date": datetime(2019, 12, 26), "table_name": "dag_table"}}
 
@@ -39,14 +43,9 @@ def check_table_exist(sql_to_get_schema, sql_to_check_table_exist, db_schema, tb
         return 'create_table_' + tbl
 
 
-def query_table(*args, **context):  # args[0] = sql, args[1] = db_schema
-    task_instance = context['task_instance']
-    hook = PostgresHook(schema=args[1])
-    query = hook.get_first(sql=args[0])
-    if query:
-        task_instance.xcom_push(key="count_tbl", value=tuple(query)[0])
-    else:
-        return None
+def push_finish_date(*args, **context):
+    ti = context['ti']
+    ti.xcom_push(key="execution_date", value=args[0])
 
 
 def create_dag(dag_id, default_args, schedule, table_name, db_name):
@@ -62,7 +61,6 @@ def create_dag(dag_id, default_args, schedule, table_name, db_name):
             task_id='get_current_user',
             bash_command='echo $(whoami)',
             xcom_push=True,
-            trigger_rule=TriggerRule.ALL_DONE,
             dag_id=dag_id)
 
         check_table = BranchPythonOperator(
@@ -96,14 +94,21 @@ def create_dag(dag_id, default_args, schedule, table_name, db_name):
             dag_id=dag_id,
             trigger_rule=TriggerRule.ALL_DONE)
 
-        query_the_table = PythonOperator(
+        query_the_table = PostgresSQLCountRows(
             task_id='query_the_table_' + table_name,
-            python_callable=query_table,
-            provide_context=True,
-            op_args=['select count(*) from {}'.format(table_name), db],
+            db_schema=db_name,
+            table_name=table_name,
             dag_id=dag_id)
 
-        start_process >> get_user >> check_table >> [create_table, skip_table] >> ins_new_row >> query_the_table
+        finish_process = PythonOperator(
+            task_id='finish_process',
+            python_callable=push_finish_date,
+            provide_context=True,
+            op_args=['{{ ts }}'],
+            dag_id=dag_id)
+
+        start_process >> get_user >> check_table >> [create_table, skip_table] >> ins_new_row >> \
+            query_the_table >> finish_process
 
     return dag
 

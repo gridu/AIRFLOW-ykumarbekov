@@ -18,7 +18,7 @@ args = {
             'retries': 1,
             'start_date': datetime(2019, 12, 26)}
 
-dag_trigger = DAG(dag_id=parent_dag_name, default_args=args, schedule_interval='35 13 * * *')
+dag_trigger = DAG(dag_id=parent_dag_name, default_args=args, schedule_interval='09 13 * * *')
 
 wait_run_file = FileSensor(task_id='wait_run_file', poke_interval=30, filepath=run_file, dag=dag_trigger)
 
