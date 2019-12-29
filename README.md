@@ -27,7 +27,7 @@ docker exec docker-compose_webserver_1 bash -l -c "airflow variables -i /usr/loc
 ```
 docker exec docker-compose_webserver_1 bash -l -c "mkdir /tmp/airflow_project"
 ```
-7) Run the DAGs  
+7) Run main DAG: trigger_dag.py  
 
 _Short description:_  
 All functionality is implemented in the prod folder, where we have 3 Python files:  
