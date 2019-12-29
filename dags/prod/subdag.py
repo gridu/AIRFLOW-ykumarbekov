@@ -20,9 +20,8 @@ external_task_id_for_triggered_dag = 'finish_process'
 
 
 class CustomExternalTaskSensor(ExternalTaskSensor):
-    '''
-    CustomExternalTaskSensor child from ExternalTaskSensor
-    '''
+    """ CustomExternalTaskSensor child from ExternalTaskSensor """
+
     @apply_defaults
     def __init__(self,
                  external_dag_id,

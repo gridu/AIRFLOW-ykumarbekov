@@ -16,6 +16,11 @@ services:
             - LOAD_EX=n
             - EXECUTOR=Local
             - FERNET_KEY=TYPoKtwNhIlGt4vkGH5JIUs3GNIF0F3FPZrtXcPyiL4=
+            - POSTGRES_HOST=postgres
+            - POSTGRES_PORT=5432
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
         volumes:
             - /Users/ykumarbekov/projects/pycharm/airflow_project/dags/:/usr/local/airflow/dags
             - /Users/ykumarbekov/projects/pycharm/airflow_project/plugins:/usr/local/airflow/plugins
@@ -23,6 +28,9 @@ services:
         ports:
             - "8080:8080"
         command: webserver
+        # command: sh -c "webserver && airflow variables -i /usr/local/airflow/config/variables.json"
+        # Run:
+        # docker exec docker-compose_webserver_1 bash -l -c "airflow variables -i /usr/local/airflow/config/variables.json"
         healthcheck:
             test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
             interval: 30s

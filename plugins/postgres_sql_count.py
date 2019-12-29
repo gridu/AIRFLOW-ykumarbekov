@@ -30,7 +30,6 @@ class PostgresSQLCountRows(BaseOperator):
 class PostgresSQLCustomOperatorsPlugin(AirflowPlugin):
     name = "postgres_custom"
     operators = [PostgresSQLCountRows]
-
     hooks = []
     executors = []
     macros = []

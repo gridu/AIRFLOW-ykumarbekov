@@ -10,12 +10,12 @@ from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.postgres_custom import PostgresSQLCountRows
 
 curr_dir = 'prod'
-db = 'project_db'
-'''
-conn_id = postgres (default postgres connection)
-'''
 
-config = {'db_job_dag': {'schedule_interval': None, "start_date": datetime(2019, 12, 26), "table_name": "dag_table"}}
+config = {'db_job_dag': {
+    'schedule_interval': None,
+    "start_date": datetime(2019, 12, 26),
+    "table_name": "dag_table",
+    "database": "airflow"}}
 
 
 class CustomPostgresOperator(PostgresOperator):
@@ -120,4 +120,5 @@ for k, v in config.items():
                                'retries': 1,
                                'start_date': config[k]['start_date']},
                               config[k]['schedule_interval'],
-                              config[k]['table_name'], db)
+                              config[k]['table_name'],
+                              config[k]['database'])
