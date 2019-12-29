@@ -30,7 +30,7 @@ docker exec docker-compose_webserver_1 bash -l -c "mkdir /tmp/airflow_project"
 7) Run main DAG: trigger_dag.py  
 
 _Short description:_  
-All functionality is implemented in the prod folder, where we have 3 Python files:  
+_All functionality is implemented in the prod folder, where we have 3 Python files:_  
 - trigger_dag.py: main DAG which start the workflow, first task is waiting - run file (/tmp/airflow_project/run)  
 - db_job_dag.py: all operations connected with database  
 - subdag.py: invoking subDAG which waits until db_jb_dog.py is finished then runs cleaning process  
