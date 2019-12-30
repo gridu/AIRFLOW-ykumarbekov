@@ -33,7 +33,19 @@ _All functionality is implemented in the prod folder:_
 - trigger_dag.py - is main DAG which starts the workflow, to complete 1st task, you need to create run file inside: `/tmp/airflow_project/run` 
 You can use for it docker exec command.   
 - db_job_dag.py: runs all operations connected with database  
-- subdag.py: invoking subDAG which waits until db_jb_dog.py is finished then runs remaining tasks
+- subdag.py: invoking subDAG which waits until db_jb_dog.py is finished then runs remaining tasks  
+
+_Course practicing steps:_  
+- Code practice: DAG creation (Part I)  
+- Code practice: DAG creation (Part II)  
+- The DAGBag  
+- Code practice: Run the DAGs  
+- Code practice: Refactor dynamic DAG creation and add Branching  
+- Code practice: Add correct Trigger Rule and more tasks  
+- Code practice: Create a new DAG  
+- Code practice: add SubDAG and Variables in trigger DAG  
+- Code Practice: install and use PostgeSQL (Part I)  
+- Code practice: install and use PostgeSQL (Part II)  
 
 
 
