@@ -19,6 +19,7 @@ config = {'db_job_dag': {
 
 
 class CustomPostgresOperator(PostgresOperator):
+    """ Add parameters as template field, so we can use Jinja templates inside parameters """
     template_fields = ('sql', 'parameters')
 
 
@@ -44,6 +45,7 @@ def check_table_exist(sql_to_get_schema, sql_to_check_table_exist, db_schema, tb
 
 
 def push_finish_date(*args, **context):
+    """ We use this method to pass execution date to Xcom table, so later we can use it for ExternalTaskSensor """
     ti = context['ti']
     ti.xcom_push(key="execution_date", value=args[0])
 
@@ -57,6 +59,7 @@ def create_dag(dag_id, default_args, schedule, table_name, db_name):
             python_callable=lambda: print("start processing table {} in database: {}".format(table_name, db_name)),
             dag_id=dag_id)
 
+        """ Unfortunately $USER env. variable doesn't work inside Docker image, but we found workaround """
         get_user = BashOperator(
             task_id='get_current_user',
             bash_command='echo $(whoami)',
@@ -100,6 +103,7 @@ def create_dag(dag_id, default_args, schedule, table_name, db_name):
             table_name=table_name,
             dag_id=dag_id)
 
+        """ I used this task to get and send actual execution date to Xcom table """
         finish_process = PythonOperator(
             task_id='finish_process',
             python_callable=push_finish_date,

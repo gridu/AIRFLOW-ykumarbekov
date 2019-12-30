@@ -20,7 +20,7 @@ external_task_id_for_triggered_dag = 'finish_process'
 
 
 class CustomExternalTaskSensor(ExternalTaskSensor):
-    """ CustomExternalTaskSensor child from ExternalTaskSensor """
+    """ CustomExternalTaskSensor inherits from ExternalTaskSensor """
 
     @apply_defaults
     def __init__(self,
@@ -43,13 +43,14 @@ class CustomExternalTaskSensor(ExternalTaskSensor):
 
     @provide_session
     def poke(self, context, session=None):
-        '''
+        """
         Custom code
-            here we're getting execution_date from triggered dag
-            to realize this we use Xcom class, which reads data from Airflow database
-            then we populate execution_date_fn with this value
-            Pay attention: to receive last value we set include_prior_dates as True
-        '''
+            Description:
+            1) I get current datetime and save it inside exec_dt
+            2) Then invoke XCom.get_one method, receive execution_date value from the table
+               to receive value I set include_prior_date as True, so I can get last execution_date value
+            3) Populate execution_date_fn with this value
+        """
         exec_dt = dt.datetime.now()
         exec_date = XCom.get_one(
             execution_date=exec_dt.replace(tzinfo=timezone.utc),
@@ -63,9 +64,7 @@ class CustomExternalTaskSensor(ExternalTaskSensor):
             print("execution_date_fn: {}".format(self.execution_date_fn))
         # ****************************************
         # super(CustomExternalTaskSensor, self).poke(context=context, session=session)
-        '''
-        Original code
-        '''
+        """ Original code """
         if self.execution_delta:
             dttm = context['execution_date'] - self.execution_delta
         elif self.execution_date_fn:
@@ -119,7 +118,6 @@ class CustomExternalTaskSensor(ExternalTaskSensor):
 
         session.commit()
         return count == len(dttm_filter)
-        # ****************************************
         # ****************************************
 
 
