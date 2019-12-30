@@ -35,7 +35,7 @@ You can use for it docker exec command.
 - db_job_dag.py: runs all operations connected with database  
 - subdag.py: invoking subDAG which waits until db_jb_dog.py is finished then runs remaining tasks  
 
-_Course practicing steps implemented in the project:_  
+_Course practice steps implemented in the project:_  
 - Code practice: DAG creation (Part I)  
 - Code practice: DAG creation (Part II)  
 - The DAGBag  
