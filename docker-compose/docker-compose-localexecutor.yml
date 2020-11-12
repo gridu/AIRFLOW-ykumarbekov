@@ -22,9 +22,9 @@ services:
             - POSTGRES_DB=airflow
             - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
         volumes:
-            - /Users/ykumarbekov/projects/pycharm/airflow_project/dags/:/usr/local/airflow/dags
-            - /Users/ykumarbekov/projects/pycharm/airflow_project/plugins:/usr/local/airflow/plugins
-            - /Users/ykumarbekov/projects/pycharm/airflow_project/config:/usr/local/airflow/config
+            - /Users/ykumarbekov/projects/pycharm/AIRFLOW-ykumarbekov/dags_new/:/usr/local/airflow/dags
+            - /Users/ykumarbekov/projects/pycharm/AIRFLOW-ykumarbekov/plugins:/usr/local/airflow/plugins
+            - /Users/ykumarbekov/projects/pycharm/AIRFLOW-ykumarbekov/config:/usr/local/airflow/config
         ports:
             - "8080:8080"
         command: webserver

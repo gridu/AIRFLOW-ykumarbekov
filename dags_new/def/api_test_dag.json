@@ -1,0 +1,21 @@
+{
+  "api_test_dag": {
+    "params": {
+      "year": "",
+      "month": "",
+      "day": "",
+      "api_endpoint": "https://api.openweathermap.org/data/2.5/onecall/timemachine",
+      "api_params": {
+        "lat": "43.222015",
+        "lon": "76.851250",
+        "dt": "",
+        "appid": "7771d54e688c9b95706f756b052b27e8"
+      },
+      "hdfs_server": "http://hadoop-oil-control-drp.reksoft.ru:50070",
+      "spark_master_url": "spark://hadoop-oil-control-drp.reksoft.ru:7077",
+      "spark_parameters": "--executor-memory 1G --total-executor-cores 1",
+      "spark_code_file": "api_code.py",
+      "output_file_path": ""
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "url_test_dag": {
+    "params": {
+      "year": "",
+      "month": "",
+      "day": "",
+      "url_list": [
+        "https://www.w3schools.com/xml/cd_catalog.xml",
+        "https://www.w3schools.com/xml/simple.xml"
+      ],
+      "hdfs_server": "http://hadoop-oil-control-drp.reksoft.ru:50070",
+      "output_file_path": "",
+      "hdfs_file_path": "/airflow/data/url_task/in"
+    }
+  }
+}
